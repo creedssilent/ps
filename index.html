@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pempek Sutra</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(to right, #ff9966, #ff5e62);
+            margin: 0;
+            padding: 20px;
+            color: #fff;
+            opacity: 0;
+            animation: fadeIn 1.5s forwards;
+        }
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-top: 150px; /* Increase padding top */
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+            opacity: 0;
+            animation: slideDown 1.5s forwards;
+            animation-delay: 0.5s;
+        }
+        .header img.logo {
+            width: 80px; /* Adjust logo size */
+            height: auto;
+            position: absolute;
+            top: -80px; /* Adjust position */
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        .nav {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.9); /* Semi-transparent background */
+            z-index: 1000;
+            padding: 10px 40px; /* Adjust padding to fix cutting off */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box; /* Make sure padding is included in the element's total width and height */
+        }
+        .nav a {
+            margin: 0 15px;
+            color: #333;
+            text-decoration: none;
+            font-size: 18px;
+            transition: color 0.3s, transform 0.3s;
+        }
+        .nav a:hover {
+            color: #ff5e62;
+            transform: scale(1.1);
+        }
+        .welcome-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .product {
+            background: #fff;
+            color: #333;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            margin: 20px auto;
+            width: 80%;
+            max-width: 800px;
+            text-align: center;
+            overflow: hidden;
+            transform: scale(0.8);
+            opacity: 0;
+            transition: transform 0.3s, opacity 0.3s;
+            animation: growIn 1.5s forwards;
+            animation-delay: 1s;
+        }
+        @keyframes growIn {
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        .product:hover {
+            transform: scale(1.05);
+        }
+        .product img {
+            width: 100%;
+            height: auto;
+        }
+        .product-details {
+            padding: 20px;
+        }
+        .product-details h2 {
+            font-size: 26px;
+            margin: 10px 0;
+        }
+        .product-details p {
+            color: #777;
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+        .product-details input[type="number"] {
+            width: 50px;
+            padding: 5px;
+            margin-right: 10px;
+            text-align: center;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .product-details a {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 12px 25px;
+            background-color: #25D366;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            text-decoration: none;
+            font-size: 18px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s, box-shadow 0.3s, transform 0.3s;
+        }
+        .product-details a:hover {
+            background-color: #20b557;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            transform: scale(1.1);
+        }
+        .product-section {
+            display: flex;
+            align-items: center;
+            margin: 40px 0;
+            background: #fff;
+            color: #333;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            opacity: 0;
+            animation: slideUp 1.5s forwards;
+            animation-delay: 1.5s;
+        }
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        .product-section img {
+            width: 50%;
+            height: auto;
+        }
+        .product-info {
+            padding: 20px;
+            width: 50%;
+        }
+        .product-info h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        .product-info p {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+        .product-info .price {
+            font-size: 20px;
+            color: #ff5e62;
+        }
+        .product-info .price span {
+            display: block;
+            margin-bottom: 10px;
+        }
+        .product-info .price a {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #25D366;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            text-decoration: none;
+            font-size: 16px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s, box-shadow 0.3s, transform 0.3s;
+        }
+        .product-info .price a:hover {
+            background-color: #20b557;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            transform: scale(1.1);
+        }
+        .social-icons {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.2); /* Add a frame */
+            padding: 10px;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        .social-icons a {
+            display: block;
+        }
+        .social-icons img {
+            width: 40px;
+            height: 40px;
+            transition: transform 0.3s;
+        }
+        .social-icons img:hover {
+            transform: scale(1.2);
+        }
+    </style>
+    <script>
+        function updatePrice() {
+            const pricePerItem = 10000; // Harga per item
+            const quantity = document.getElementById('quantity').value;
+            const totalPrice = pricePerItem * quantity;
+            document.getElementById('total-price').innerText = `Rp ${totalPrice.toLocaleString()}`;
+            const whatsappLink = `https://wa.me/6282321357370?text=Halo%20saya%20ingin%20memesan%20produk%20ini:%0ANama%20Produk%0AJumlah:%20${quantity}%0ATotal%20Harga:%20Rp%20${totalPrice.toLocaleString()}`;
+            document.getElementById('whatsapp-link').href = whatsappLink;
+        }
+    </script>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <img src="img/Logo Pempek Sutra.png" alt="Logo Produk" class="logo">
+        <h1>Selamat Datang</h1>
+        <h2>di Pempek Sutra</h2>
+    </div>
+    <div class="product-section">
+        <img src="img/Pempek 2.jpg" alt="Gambar Produk">
+        <div class="product-info">
+            <h2>Pempek Sutra Putih Telur</h2>
+            <p>Pempek dengan cita rasa yang lembut berkombinasi dengan kuah cuka yang asam, pedas dan manis jika dimakan bersamaan.</p>
+            <p class="price">
+                <span id="total-price">Rp 10.000</span>
+                <input type="number" id="quantity" value="1" min="1" oninput="updatePrice()">
+                <a id="whatsapp-link" href="https://wa.me/6282321357370?text=Halo%20saya%20ingin%20memesan%20produk%20ini:%0APempek Sutra%20Putih Telur%0AJumlah:%201%0ATotal%20Harga:%20Rp%2010.000" target="_blank">Beli Sekarang</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="nav">
+    <a href="index.html">Beranda</a>
+    <a href="tentang-produk.html">Tentang Produk</a>
+</div>
+
+<div class="social-icons">
+    <a href="https://www.instagram.com/pempek_sutra_telur_putih/" target="_blank">
+        <img src="img/instagram.png" alt="Instagram">
+    </a>
+    <a href="https://wa.me/6282321357370" target="_blank">
+        <img src="img/whatsapp.png" alt="WhatsApp">
+    </a>
+</div>
+
+</body>
+</html>
