@@ -241,7 +241,7 @@
             const quantity = document.getElementById('quantity').value;
             const totalPrice = pricePerItem * quantity;
             document.getElementById('total-price').innerText = `Rp ${totalPrice.toLocaleString()}`;
-            const whatsappLink = `https://wa.me/6282321357370?text=Halo%20saya%20ingin%20memesan%20produk%20ini:%0APempek Sutra Putih Telur%0AJumlah:%20${quantity}%0ATotal%20Harga:%20Rp%20${totalPrice.toLocaleString()}`;
+            const whatsappLink = `https://wa.me/6282321357370?text=Halo%20saya%20ingin%20memesan%20produk%20ini:%0ANama%20Produk%0AJumlah:%20${quantity}%0ATotal%20Harga:%20Rp%20${totalPrice.toLocaleString()}`;
             document.getElementById('whatsapp-link').href = whatsappLink;
         }
     </script>
@@ -255,20 +255,24 @@
         <h2>di Pempek Sutra</h2>
     </div>
     <div class="product-section">
-        <img src="img/Pempek Sutra.jpg" alt="Pempek Sutra">
+        <img src="img/Pempek 2.jpg" alt="Gambar Produk">
         <div class="product-info">
             <h2>Pempek Sutra Putih Telur</h2>
-            <p>Nikmati kelezatan Pempek Sutra dengan cita rasa autentik dan tekstur lembut. Terbuat dari bahan-bahan berkualitas terbaik dan diolah dengan resep tradisional.</p>
-            <div class="price">
-                <span>Harga per item: Rp 10.000</span>
-                <label for="quantity">Jumlah:</label>
-                <input type="number" id="quantity" value="1" min="1" onchange="updatePrice()">
-                <span>Total Harga: <span id="total-price">Rp 10.000</span></span>
-                <a href="https://wa.me/6282321357370?text=Halo%20saya%20ingin%20memesan%20produk%20ini:%0APempek Sutra Putih Telur%0AJumlah:%201%0ATotal%20Harga:%20Rp%2010.000" id="whatsapp-link" target="_blank">Pesan via WhatsApp</a>
-            </div>
+            <p>Pempek dengan cita rasa yang lembut berkombinasi dengan kuah cuka yang asam, pedas dan manis jika dimakan bersamaan.</p>
+            <p class="price">
+                <span id="total-price">Rp 10.000</span>
+                <input type="number" id="quantity" value="1" min="1" oninput="updatePrice()">
+                <a id="whatsapp-link" href="https://wa.me/6282321357370?text=Halo%20saya%20ingin%20memesan%20produk%20ini:%0APempek Sutra%20Putih Telur%0AJumlah:%201%0ATotal%20Harga:%20Rp%2010.000" target="_blank">Beli Sekarang</a>
+            </p>
         </div>
     </div>
 </div>
+
+<div class="nav">
+    <a href="index.html">Beranda</a>
+    <a href="tentang-produk.html">Tentang Produk</a>
+</div>
+
 <div class="social-icons">
     <a href="https://www.instagram.com/pempek_sutra_telur_putih/" target="_blank">
         <img src="img/instagram.png" alt="Instagram">
@@ -280,3 +284,4 @@
 
 </body>
 </html>
+
