@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Profil Sekolah - SMKN 1 Mandau</title>
+    <style>
+      /* === CSS INI SAMA PERSIS DENGAN HALAMAN LAINNYA === */
+      /* === Hal ini untuk menjaga konsistensi desain === */
+
+      /* === CSS Variables (untuk kemudahan kustomisasi) === */
+      :root {
+        --primary-color: #0a4d68;
+        --secondary-color: #088395;
+        --accent-color: #f5a623;
+        --light-bg: #f8f9fa;
+        --dark-text: #343a40;
+        --light-text: #ffffff;
+        --shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        --border-radius: 12px;
+      }
+
+      /* === Gaya Dasar Modern === */
+      body {
+        font-family: "Poppins", "Segoe UI", Tahoma, sans-serif;
+        background-color: var(--light-bg);
+        margin: 0;
+        padding: 0;
+        color: var(--dark-text);
+        line-height: 1.7;
+      }
+
+      /* === Header & Navigasi (Dibuat jadi satu & sticky) === */
+      header {
+        background-color: var(--light-text);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 5%;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        width: 90%;
+      }
+
+      .logo-container img {
+        height: 50px;
+        width: auto;
+        transition: transform 0.3s ease-in-out;
+      }
+
+      .logo-container img:hover {
+        transform: scale(1.15);
+      }
+
+      nav a {
+        color: var(--primary-color);
+        text-decoration: none;
+        margin: 0 20px;
+        font-weight: 600;
+        position: relative;
+        padding-bottom: 5px;
+        transition: color 0.3s;
+      }
+
+      nav a::after {
+        content: "";
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: 0;
+        left: 50%;
+        background-color: var(--accent-color);
+        transition: all 0.3s ease-in-out;
+      }
+
+      nav a:hover {
+        color: var(--secondary-color);
+      }
+
+      nav a:hover::after {
+        width: 100%;
+        left: 0;
+      }
+
+      /* === Hero Section (Bagian judul halaman) === */
+      .hero {
+        background: linear-gradient(
+            rgba(10, 77, 104, 0.85),
+            rgba(8, 131, 149, 0.75)
+          ),
+          url("https://images.unsplash.com/photo-1562774053-701939374585?q=80&w=2086&auto=format&fit=crop")
+            no-repeat center center/cover;
+        color: var(--light-text);
+        text-align: center;
+        padding: 80px 20px;
+      }
+      .hero h1 {
+        font-size: 3em;
+        margin-bottom: 10px;
+        font-weight: 700;
+      }
+      .hero p {
+        font-size: 1.2em;
+        font-weight: 300;
+      }
+      
+      /* === Konten Utama === */
+      main {
+        padding: 40px 5%;
+        max-width: 1000px;
+        margin: auto;
+      }
+
+      .profile-content {
+        background-color: var(--light-text);
+        padding: 40px;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+      }
+
+      .profile-content img {
+        width: 100%;
+        height: auto;
+        border-radius: var(--border-radius);
+        margin-bottom: 30px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      }
+
+      .profile-content h2 {
+        color: var(--primary-color);
+        font-size: 2.2em;
+        margin-top: 20px;
+        padding-bottom: 15px;
+        border-bottom: 3px solid var(--accent-color);
+        display: inline-block;
+      }
+
+      .profile-content ul {
+        list-style-type: '✓ '; /* Emoji atau simbol sebagai penanda list */
+        padding-left: 20px;
+      }
+
+      .profile-content ul li {
+        margin-bottom: 10px;
+      }
+
+      /* === Footer === */
+      footer {
+        background-color: var(--primary-color);
+        color: var(--light-text);
+        text-align: center;
+        padding: 25px;
+        margin-top: 40px;
+      }
+      footer p {
+        margin: 0;
+        font-weight: 300;
+      }
+      
+      /* === Desain Responsif untuk Mobile === */
+      @media screen and (max-width: 768px) {
+        header {
+          flex-direction: column;
+          padding: 15px;
+        }
+        nav {
+          margin-top: 15px;
+        }
+        nav a {
+          margin: 0 10px;
+        }
+        .hero h1 {
+          font-size: 2.2em;
+        }
+        .profile-content {
+          padding: 25px;
+        }
+        .profile-content h2 {
+          font-size: 1.8em;
+        }
+      }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <header>
+      <div class="logo-container">
+        <a href="index.html"><img src="image/smk.png" alt="Logo Sekolah" /></a>
+      </div>
+      <nav>
+        <a href="index.html">Beranda</a>
+        <a href="profil.html">Profil</a>
+        <a href="jurusan.html">Jurusan</a>
+        <a href="#kontak">Kontak</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <h1>Profil SMKN 1 Mandau</h1>
+      <p>Membangun Generasi Unggul, Kreatif, dan Siap Kerja</p>
+    </section>
+
+    <main>
+      <div class="profile-content">
+        
+        <img
+          src="image/smkdepan.jpg"
+          alt="Foto Gedung Sekolah SMKN 1 Mandau"
+        />
+
+        <h2>Sejarah Singkat</h2>
+        <p>
+          SMKN 1 Mandau didirikan pada tahun 2005 sebagai jawaban atas kebutuhan 
+          tenaga kerja terampil di tingkat menengah, khususnya untuk wilayah Riau yang dinamis. 
+          Sejak awal berdirinya, sekolah ini berkomitmen penuh untuk mencetak lulusan 
+          yang tidak hanya kompeten secara teknis, tetapi juga memiliki karakter dan 
+          integritas. Ribuan alumni kami telah membuktikan kualitasnya dengan terserap 
+          di berbagai sektor industri maupun dengan melanjutkan pendidikan ke jenjang yang lebih tinggi.
+        </p>
+
+        <h2>Visi & Misi</h2>
+        <p>
+          <strong>Visi:</strong> Menjadi lembaga pendidikan vokasi yang unggul, inovatif, 
+          dan berdaya saing global dengan berlandaskan iman dan takwa.
+        </p>
+        <p><strong>Misi:</strong></p>
+        <ul>
+          <li>Menyelenggarakan pendidikan berkualitas yang relevan dengan kebutuhan industri 4.0.</li>
+          <li>Mengembangkan potensi siswa secara holistik, mencakup aspek profesional, karakter, dan spiritual.</li>
+          <li>Membangun kemitraan strategis yang berkelanjutan dengan dunia usaha dan dunia industri (DUDI).</li>
+          <li>Menciptakan ekosistem sekolah yang mendorong lahirnya inovasi dan semangat kewirausahaan.</li>
+        </ul>
+
+        <h2>Fasilitas Unggulan</h2>
+        <ul>
+          <li>Laboratorium Komputer & Jaringan dengan perangkat modern</li>
+          <li>Bengkel praktik untuk setiap jurusan sesuai standar industri</li>
+          <li>Perpustakaan dengan koleksi buku fisik dan akses digital</li>
+          <li>Koneksi Wi-Fi di seluruh area sekolah</li>
+          <li>Ruang kelas yang nyaman dan dilengkapi proyektor</li>
+          <li>Sarana olahraga dan masjid sebagai pusat kegiatan siswa</li>
+        </ul>
+      </div>
+    </main>
+
+    <footer id="kontak">
+      <p>&copy; 2025 SMKN 1 Mandau. SMK Bisa, SMK Hebat!</p>
+    </footer>
+  </body>
+</html>
