@@ -2,88 +2,99 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Generator dan Data Siswa</title>
+    <title>Admin Panel - Manajemen & Cetak Barcode</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; text-align: center; padding: 50px 20px; background-color: #f0f2f5; }
-        .container { max-width: 500px; margin: 0 auto; background-color: #ffffff; padding: 40px; border-radius: 12px; box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); position: relative; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 40px; border-radius: 12px; box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); position: relative; }
         h1, h2, h4 { color: #1c1e21; }
-        h1 { margin-bottom: 25px; }
-        .page-link { position: absolute; top: 15px; left: 20px; text-decoration: none; color: #007bff; font-weight: bold; font-size: 0.9em; }
-        .page-link:hover { text-decoration: underline; }
-        input[type="text"], input[type="file"] { width: 100%; padding: 8px; box-sizing: border-box; }
-        #nim-input { text-align: center; font-size: 1.1em; padding: 12px; border: 2px solid #ddd; border-radius: 8px; }
-        #nim-input:focus { outline: none; border-color: #007bff; }
-        #barcode-container { margin-top: 20px; min-height: 70px; display: flex; justify-content: center; align-items: center; }
+        .page-link { position: absolute; top: 15px; left: 20px; text-decoration: none; color: #007bff; font-weight: bold; }
         
-        .action-btn { padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 1em; color: white; }
-        .save-btn { background-color: #28a745; margin-top: 15px; }
-        .save-btn:hover { background-color: #218838; }
-        .save-btn:disabled { background-color: #ccc; cursor: not-allowed; }
+        .section { margin-top: 30px; border-top: 1px solid #eee; padding-top: 30px; }
         
-        .data-section { margin-top: 40px; border-top: 1px solid #eee; padding-top: 30px; text-align: left; }
-        .data-section h2 { text-align: center; margin-bottom: 20px; }
-        .input-group { margin-bottom: 15px; }
-        .input-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #333; }
+        /* Tombol Aksi */
+        .action-btn { padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 1em; color: white; font-weight: 500; }
+        .download-btn { background-color: #28a745; }
+        .download-btn:disabled { background-color: #ccc; cursor: not-allowed; }
         .tambah-btn { background-color: #007bff; }
-        #upload-label { display: inline-block; padding: 10px 15px; background: #5cb85c; color: white; border-radius: 5px; cursor: pointer; }
+        #upload-label { display: inline-block; padding: 12px 20px; background: #17a2b8; color: white; border-radius: 8px; cursor: pointer; font-size: 1em; font-weight: 500; }
         #excel-file { display: none; }
+        
+        /* Form Input Manual */
+        .input-group { margin-bottom: 15px; text-align: left; }
+        .input-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #333; }
+        .input-group input { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 5px; }
+
+        #status-area { margin-top: 20px; font-weight: bold; min-height: 25px; }
+        .description { color: #666; max-width: 500px; margin: 15px auto; line-height: 1.6; }
     </style>
 </head>
 <body>
     <div class="container">
         <a href="index.html" class="page-link">🏠 Kembali ke Absensi</a>
-        <h1>Generator Barcode & Data Siswa</h1>
-        
-        <div class="input-group">
-            <label for="nim-input">Ketik NISN untuk membuat barcode:</label>
-            <input type="text" id="nim-input" oninput="generateBarcode()">
+        <h1>Panel Admin</h1>
+        <p class="description">Gunakan halaman ini untuk mengelola data siswa dan mencetak semua barcode sekaligus.</p>
+        <div id="status-area"></div>
+
+        <div class="section">
+            <h2>Cetak Barcode Massal</h2>
+            <p class="description" style="font-size: 0.9em;">Fitur ini akan membuat satu file PDF berisi kartu barcode untuk semua siswa yang datanya aktif saat ini.</p>
+            <button id="download-pdf-btn" class="action-btn download-btn" disabled>Download Semua Barcode (PDF)</button>
         </div>
-        <div id="barcode-container">
-            <svg id="barcode"></svg>
-        </div>
-        
-        <button id="save-button" class="action-btn save-btn" disabled>Simpan Barcode (SVG)</button>
-        
-        <div class="data-section">
-            <h2>Tambah Data Siswa</h2>
+
+        <div class="section">
+            <h2>Manajemen Data Siswa</h2>
             
-            <h4>Tambah Manual</h4>
+            <h4>Tambah Siswa Tunggal (Manual)</h4>
             <div class="input-group">
                 <label for="new-nisn">NISN:</label>
-                <input type="text" id="new-nisn" placeholder="NISN siswa baru">
+                <input type="text" id="new-nisn" placeholder="Contoh: 1234567890">
             </div>
             <div class="input-group">
                 <label for="new-nama">Nama Lengkap:</label>
-                <input type="text" id="new-nama" placeholder="Nama siswa baru">
+                <input type="text" id="new-nama" placeholder="Contoh: Budi Santoso">
             </div>
-             <div class="input-group">
+            <div class="input-group">
                 <label for="new-kelas">Kelas:</label>
-                <input type="text" id="new-kelas" placeholder="Kelas siswa baru">
+                <input type="text" id="new-kelas" placeholder="Contoh: XII IPA 1">
             </div>
             <button class="action-btn tambah-btn" onclick="tambahManual()">Tambah Siswa</button>
 
-            <h4 style="margin-top: 30px;">Tambah dari File Excel (.xlsx)</h4>
-            <p style="font-size: 0.9em; color: #666;">Format: Kolom A untuk NISN, Kolom B untuk Nama, Kolom C untuk Kelas (Baris pertama dilewati).</p>
+            <h4 style="margin-top: 30px;">Impor Siswa Massal (Excel)</h4>
+            <p class="description" style="font-size: 0.9em;">Impor akan menimpa seluruh data yang ada dengan data dari file Excel.</p>
             <input type="file" id="excel-file" accept=".xlsx, .xls">
-            <label for="excel-file" id="upload-label">Pilih File Excel...</label>
+            <label for="excel-file" id="upload-label">Pilih File Master Siswa (.xlsx)</label>
         </div>
     </div>
 
     <script src="siswa.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <script>
         // --- Elemen-elemen Penting ---
-        const nimInput = document.getElementById('nim-input');
-        const saveButton = document.getElementById('save-button');
-        const barcodeElement = document.getElementById('barcode');
-        
+        const excelInput = document.getElementById('excel-file');
+        const downloadPdfBtn = document.getElementById('download-pdf-btn');
+        const statusArea = document.getElementById('status-area');
         let daftarSiswa = getDaftarSiswa();
 
-        // --- FUNGSI MANAJEMEN DATA SISWA (SAMA SEPERTI SEBELUMNYA) ---
+        // --- Cek Status Awal & Update UI ---
+        function updateStatus() {
+            daftarSiswa = getDaftarSiswa();
+            if (daftarSiswa.length > 0) {
+                statusArea.textContent = `${daftarSiswa.length} data siswa aktif.`;
+                statusArea.style.color = 'green';
+                downloadPdfBtn.disabled = false;
+            } else {
+                statusArea.textContent = 'Belum ada data siswa. Silakan impor dari Excel atau tambah manual.';
+                statusArea.style.color = 'red';
+                downloadPdfBtn.disabled = true;
+            }
+        }
+        
+        // --- Logika Impor & Tambah Data ---
         function simpanDaftarSiswa() {
             localStorage.setItem('daftarSiswa', JSON.stringify(daftarSiswa));
-            alert('Data siswa berhasil diperbarui!');
+            updateStatus(); // Perbarui status setelah menyimpan
         }
 
         function tambahManual() {
@@ -103,60 +114,151 @@
 
             daftarSiswa.push({ nisn, nama, kelas: kelas || '-' });
             simpanDaftarSiswa();
+            alert(`Siswa "${nama}" berhasil ditambahkan.`);
+
+            // Kosongkan form
             document.getElementById('new-nisn').value = '';
             document.getElementById('new-nama').value = '';
             document.getElementById('new-kelas').value = '';
         }
 
-        document.getElementById('excel-file').addEventListener('change', function(e) { /* ... kode excel tetap sama ... */ const file = e.target.files[0]; const reader = new FileReader(); reader.onload = function(event) { const data = new Uint8Array(event.target.result); const workbook = XLSX.read(data, { type: 'array' }); const firstSheetName = workbook.SheetNames[0]; const worksheet = workbook.Sheets[firstSheetName]; const json_data = XLSX.utils.sheet_to_json(worksheet, { header: 1 }); let siswaBaru = 0; for (let i = 1; i < json_data.length; i++) { const row = json_data[i]; const nisn = String(row[0] || '').trim(); const nama = String(row[1] || '').trim(); const kelas = String(row[2] || '').trim(); if (nisn && nama && !daftarSiswa.some(s => s.nisn === nisn)) { daftarSiswa.push({ nisn, nama, kelas: kelas || '-' }); siswaBaru++; } } if (siswaBaru > 0) { simpanDaftarSiswa(); } else { alert('Tidak ada siswa baru yang ditambahkan. Mungkin data sudah ada atau format file salah.'); } }; reader.readAsArrayBuffer(file); e.target.value = ''; });
+        excelInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const reader = new FileReader();
 
-        // --- FUNGSI GENERATOR DAN SIMPAN BARCODE ---
-        function generateBarcode() {
-            const nimValue = nimInput.value.trim();
-            if (nimValue) {
-                try {
-                    JsBarcode(barcodeElement, nimValue, {
-                        format: "CODE128",
-                        displayValue: true,
-                        fontSize: 18,
-                        textMargin: 0
-                    });
-                    saveButton.disabled = false; // Aktifkan tombol simpan
-                } catch (e) {
-                    barcodeElement.innerHTML = '';
-                    saveButton.disabled = true; // Non-aktifkan jika input error
+            reader.onload = function(event) {
+                let daftarSiswaBaru = [];
+                const data = new Uint8Array(event.target.result);
+                const workbook = XLSX.read(data, {
+                    type: 'array'
+                });
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                const json_data = XLSX.utils.sheet_to_json(worksheet, {
+                    header: 1
+                });
+
+                for (let i = 1; i < json_data.length; i++) {
+                    const row = json_data[i];
+                    const nisn = String(row[0] || '').trim();
+                    const nama = String(row[1] || '').trim();
+                    const kelas = String(row[2] || '').trim();
+                    if (nisn && nama) {
+                        daftarSiswaBaru.push({
+                            nisn,
+                            nama,
+                            kelas: kelas || '-'
+                        });
+                    }
                 }
-            } else {
-                barcodeElement.innerHTML = '';
-                saveButton.disabled = true; // Non-aktifkan jika input kosong
-            }
-        }
 
-        // --- FUNGSI SIMPAN BARCODE (DITAMBAHKAN KEMBALI) ---
-        function saveBarcode() {
-            const nimValue = nimInput.value.trim();
-            if (!nimValue || barcodeElement.innerHTML === '') {
-                alert("Tidak ada barcode untuk disimpan.");
+                if (daftarSiswaBaru.length > 0) {
+                    daftarSiswa = daftarSiswaBaru;
+                    simpanDaftarSiswa();
+                    alert(`Berhasil mengimpor dan menimpa dengan ${daftarSiswaBaru.length} data siswa baru.`);
+                } else {
+                    alert('Gagal memuat data dari Excel. Cek format file.');
+                }
+            };
+            reader.readAsArrayBuffer(file);
+            e.target.value = '';
+        });
+
+        // --- Fungsi Download PDF ---
+        async function generatePdfForAllStudents() {
+            const students = getDaftarSiswa();
+            if (students.length === 0) {
+                alert("Tidak ada data siswa untuk diproses.");
                 return;
             }
 
-            const svgData = new XMLSerializer().serializeToString(barcodeElement);
-            const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
+            statusArea.textContent = 'Mempersiapkan PDF...';
+            downloadPdfBtn.disabled = true;
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({
+                orientation: 'p',
+                unit: 'mm',
+                format: 'a4'
+            });
+
+            const page = { width: 210, height: 297 };
+            const margin = { top: 15, right: 15, bottom: 15, left: 15 };
+            const label = { width: 85, height: 40, padding: 5 };
+            const cols = 2;
+            const rows = 6;
+            let col = 0;
+            let row = 0;
             
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `barcode-${nimValue}.svg`; 
-            document.body.appendChild(link);
-            link.click();
-            
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
+            const canvas = document.createElement('canvas');
+
+            for (let i = 0; i < students.length; i++) {
+                const student = students[i];
+                statusArea.textContent = `Memproses barcode ${i + 1} dari ${students.length}...`;
+
+                let x = margin.left + (col * (label.width + (page.width - margin.left - margin.right - (label.width * cols)) / (cols - 1)));
+                let y = margin.top + (row * label.height);
+
+                const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                JsBarcode(svg, student.nisn, {
+                    format: "CODE128",
+                    displayValue: false,
+                    width: 2,
+                    height: 50
+                });
+
+                const svgString = new XMLSerializer().serializeToString(svg);
+                const img = new Image();
+                const svgBlob = new Blob([svgString], {
+                    type: "image/svg+xml;charset=utf-8"
+                });
+                const url = URL.createObjectURL(svgBlob);
+                img.src = url;
+
+                await new Promise(resolve => {
+                    img.onload = () => {
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0);
+                        const pngDataUrl = canvas.toDataURL('image/png');
+                        
+                        doc.addImage(pngDataUrl, 'PNG', x + label.padding, y + label.padding, label.width - (label.padding * 2), 15);
+                        doc.setFontSize(9);
+                        doc.text(student.nama, x + (label.width / 2), y + 27, {
+                            align: 'center'
+                        });
+                        doc.setFontSize(8);
+                        doc.text(student.nisn, x + (label.width / 2), y + 32, {
+                            align: 'center'
+                        });
+
+                        URL.revokeObjectURL(url);
+                        resolve();
+                    };
+                });
+                
+                col++;
+                if (col >= cols) {
+                    col = 0;
+                    row++;
+                }
+                if (row >= rows) {
+                    row = 0;
+                    if (i < students.length - 1) {
+                        doc.addPage();
+                    }
+                }
+            }
+
+            statusArea.textContent = 'Menyimpan PDF...';
+            doc.save(`semua_barcode_siswa.pdf`);
+            updateStatus();
         }
         
-        // Event listener untuk tombol simpan
-        saveButton.addEventListener('click', saveBarcode);
-
+        // --- Event Listener ---
+        downloadPdfBtn.addEventListener('click', generatePdfForAllStudents);
+        window.addEventListener('DOMContentLoaded', updateStatus);
     </script>
 </body>
 </html>
