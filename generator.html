@@ -140,9 +140,10 @@
 
                 for (let i = 1; i < json_data.length; i++) {
                     const row = json_data[i];
-                    const nisn = String(row[0] || '').trim();
-                    const nama = String(row[1] || '').trim();
-                    const kelas = String(row[2] || '').trim();
+                    // Mengambil data dari kolom yang benar: B=NISN, C=Nama, D=Kelas
+                    const nisn = String(row[1] || '').trim();
+                    const nama = String(row[2] || '').trim();
+                    const kelas = String(row[3] || '').trim();
                     if (nisn && nama) {
                         daftarSiswaBaru.push({
                             nisn,
