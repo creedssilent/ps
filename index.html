@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Absensi (Offline Mode)</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { background-color: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.1); text-align: center; width: 90%; max-width: 600px; }
+        h1 { margin-bottom: 20px; }
+        #barcode-input { width: 100%; padding: 15px; font-size: 1.2rem; border: 2px solid #ddd; border-radius: 8px; box-sizing: border-box; text-align: center; }
+        #barcode-input:focus { outline: none; border-color: #1877f2; }
+        #log-container { margin-top: 20px; text-align: left; max-height: 250px; overflow-y: auto; border: 1px solid #eee; padding: 15px; border-radius: 8px; }
+        #absen-log { list-style-type: none; padding: 0; margin: 0; }
+        #absen-log li { padding: 10px; border-bottom: 1px solid #f0f0f0; }
+        .sukses { color: #28a745; font-weight: bold; }
+        .gagal { color: #dc3545; font-weight: bold; }
+        .download-btn { background-color: #1877f2; color: white; padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; margin-top: 20px; }
+        .download-btn:hover { background-color: #166fe5; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Sistem Absensi Barcode</h1>
+        <p>Arahkan scan barcode ke kolom di bawah ini. Data tersimpan di browser.</p>
+        
+        <form id="absen-form">
+            <input type="text" id="barcode-input" placeholder="Tunggu Scan..." autofocus>
+        </form>
+
+        <div id="log-container">
+            <h3>Log Absensi:</h3>
+            <ul id="absen-log"></ul>
+        </div>
+
+        <button class="download-btn" onclick="downloadCSV()">⬇️ Download Log Absen (CSV)</button>
+    </div>
+
+    <script src="siswa.js"></script>
+
+    <script>
+        const absenForm = document.getElementById('absen-form');
+        const barcodeInput = document.getElementById('barcode-input');
+        const absenLog = document.getElementById('absen-log');
+        let logData = []; // Variabel untuk menyimpan data log
+
+        // --- Fungsi Utama ---
+
+        // Fungsi untuk mengambil log dari LocalStorage saat halaman dimuat
+        function muatLogDariStorage() {
+            const dataTersimpan = localStorage.getItem('logAbsen');
+            if (dataTersimpan) {
+                logData = JSON.parse(dataTersimpan);
+                logData.forEach(item => tampilkanLogDiUI(item.pesan, item.tipe));
+            }
+        }
+        
+        // Fungsi untuk menampilkan log di layar (User Interface)
+        function tampilkanLogDiUI(pesan, tipe) {
+            const logItem = document.createElement('li');
+            logItem.innerHTML = pesan;
+            logItem.className = tipe;
+            absenLog.prepend(logItem);
+        }
+        
+        // Fungsi untuk menyimpan log baru
+        function simpanLog(pesan, tipe) {
+            // 1. Tambahkan ke array
+            logData.push({ pesan, tipe });
+            // 2. Simpan array yang sudah diupdate ke LocalStorage
+            localStorage.setItem('logAbsen', JSON.stringify(logData));
+        }
+
+        // Fungsi untuk proses absensi saat scan
+        absenForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const nisn = barcodeInput.value.trim();
+            const waktu = new Date().toLocaleTimeString('id-ID');
+            
+            if (nisn) {
+                // Cek apakah siswa terdaftar di file siswa.js
+                const siswaTerdaftar = DAFTAR_SISWA.find(siswa => siswa.nisn === nisn);
+                
+                if (siswaTerdaftar) {
+                    const pesan = `[${waktu}] - Absen berhasil: <strong>${siswaTerdaftar.nama}</strong> (${nisn})`;
+                    tampilkanLogDiUI(pesan, 'sukses');
+                    simpanLog(pesan, 'sukses');
+                } else {
+                    const pesan = `[${waktu}] - Gagal: Barcode <strong>${nisn}</strong> tidak terdaftar!`;
+                    tampilkanLogDiUI(pesan, 'gagal');
+                    simpanLog(pesan, 'gagal');
+                }
+            }
+            
+            barcodeInput.value = ''; // Kosongkan input
+        });
+
+        // Fungsi untuk download log sebagai file CSV (bisa dibuka di Excel)
+        function downloadCSV() {
+            if (logData.length === 0) {
+                alert("Belum ada data absensi untuk di-download.");
+                return;
+            }
+
+            // Buang tag HTML dari pesan untuk CSV
+            const dataBersih = logData.map(item => {
+                const elemen = document.createElement("div");
+                elemen.innerHTML = item.pesan;
+                return elemen.textContent || elemen.innerText || "";
+            });
+            
+            // Tambahkan header
+            let csvContent = "data:text/csv;charset=utf-8,Log Absensi\n";
+            csvContent += dataBersih.join("\n");
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `log_absen_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // --- Event Listener ---
+        
+        // Pastikan input selalu fokus
+        barcodeInput.addEventListener('blur', () => this.focus());
+        
+        // Muat data saat halaman pertama kali dibuka
+        window.addEventListener('DOMContentLoaded', muatLogDariStorage);
+    </script>
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Generator dan Penyimpan Barcode</title>
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            text-align: center; 
+            padding-top: 50px; 
+            background-color: #f0f2f5;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            display: inline-block;
+        }
+        h1 {
+            color: #1c1e21;
+            margin-bottom: 25px;
+        }
+        input { 
+            padding: 12px; 
+            font-size: 18px; 
+            width: 300px; 
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: center;
+        }
+        input:focus {
+            outline: none;
+            border-color: #1877f2;
+        }
+        button { 
+            background-color: #28a745;
+            color: white;
+            padding: 12px 25px; 
+            font-size: 16px; 
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        #barcode-container { 
+            margin-top: 30px; 
+            min-height: 70px; /* Memberi ruang agar layout tidak "loncat" */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Generator Barcode NIM/NISN</h1>
+        <p>Ketik NIM/NISN di bawah, barcode akan muncul otomatis.</p>
+        <input type="text" id="nim-input" placeholder="Masukkan NIM/NISN..." autofocus>
+        
+        <div id="barcode-container">
+            <svg id="barcode"></svg>
+        </div>
+
+        <button id="save-button" disabled>Simpan Barcode (SVG)</button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script>
+        // --- Mengambil elemen dari HTML ---
+        const nimInput = document.getElementById('nim-input');
+        const saveButton = document.getElementById('save-button');
+        const barcodeElement = document.getElementById('barcode');
+
+        // --- Fungsi untuk membuat barcode ---
+        function generateBarcode() {
+            const nimValue = nimInput.value.trim();
+            
+            if (nimValue) {
+                // Membuat barcode menggunakan JsBarcode
+                JsBarcode(barcodeElement, nimValue, {
+                    format: "CODE128", // Format barcode yang umum
+                    displayValue: true, // Tampilkan angka di bawah barcode
+                    fontSize: 18,
+                    textMargin: 0
+                });
+                // Aktifkan tombol simpan jika input ada isinya
+                saveButton.disabled = false;
+            } else {
+                // Kosongkan area barcode jika input kosong
+                barcodeElement.innerHTML = '';
+                // Non-aktifkan tombol simpan
+                saveButton.disabled = true;
+            }
+        }
+
+        // --- Fungsi untuk menyimpan barcode ---
+        function saveBarcode() {
+            const nimValue = nimInput.value.trim();
+            if (!nimValue) {
+                alert("Tidak ada barcode untuk disimpan.");
+                return;
+            }
+
+            // 1. Mengambil konten SVG dari elemen barcode
+            const svgData = new XMLSerializer().serializeToString(barcodeElement);
+            
+            // 2. Membuat 'Blob' (objek file di memori) dari data SVG
+            const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+            
+            // 3. Membuat URL sementara untuk blob tersebut
+            const url = URL.createObjectURL(blob);
+            
+            // 4. Membuat link download palsu, mengaturnya, dan mengkliknya
+            const link = document.createElement('a');
+            link.href = url;
+            // Menentukan nama file default saat dialog 'Save As' muncul
+            link.download = `barcode-${nimValue}.svg`; 
+            document.body.appendChild(link);
+            link.click();
+            
+            // 5. Membersihkan link dan URL setelah di-klik
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        // --- Menambahkan Event Listener ---
+
+        // Panggil generateBarcode() setiap kali pengguna mengetik di kolom input
+        nimInput.addEventListener('input', generateBarcode);
+        
+        // Panggil saveBarcode() saat tombol 'Simpan' di-klik
+        saveButton.addEventListener('click', saveBarcode);
+
+    </script>
+</body>
+</html>
