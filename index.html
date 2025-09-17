@@ -20,7 +20,6 @@
     </style>
 </head>
 <body>
-
     <div class="container">
         <h1>Sistem Absensi Barcode</h1>
         <p>Arahkan scan barcode ke kolom di bawah ini. Data tersimpan di browser.</p>
@@ -43,92 +42,109 @@
         const absenForm = document.getElementById('absen-form');
         const barcodeInput = document.getElementById('barcode-input');
         const absenLog = document.getElementById('absen-log');
-        let logData = []; // Variabel untuk menyimpan data log
+        let logData = [];
 
         // --- Fungsi Utama ---
 
-        // Fungsi untuk mengambil log dari LocalStorage saat halaman dimuat
         function muatLogDariStorage() {
             const dataTersimpan = localStorage.getItem('logAbsen');
             if (dataTersimpan) {
                 logData = JSON.parse(dataTersimpan);
-                logData.forEach(item => tampilkanLogDiUI(item.pesan, item.tipe));
+                logData.forEach(item => {
+                    const pesan = formatPesan(item);
+                    tampilkanLogDiUI(pesan, item.status.toLowerCase());
+                });
             }
         }
         
-        // Fungsi untuk menampilkan log di layar (User Interface)
         function tampilkanLogDiUI(pesan, tipe) {
             const logItem = document.createElement('li');
             logItem.innerHTML = pesan;
             logItem.className = tipe;
             absenLog.prepend(logItem);
         }
-        
-        // Fungsi untuk menyimpan log baru
-        function simpanLog(pesan, tipe) {
-            // 1. Tambahkan ke array
-            logData.push({ pesan, tipe });
-            // 2. Simpan array yang sudah diupdate ke LocalStorage
+
+        // --- PERUBAHAN 1: Menyimpan data dalam format terstruktur ---
+        function simpanLog(data) {
+            logData.push(data);
             localStorage.setItem('logAbsen', JSON.stringify(logData));
         }
 
-        // Fungsi untuk proses absensi saat scan
+        function formatPesan(data) {
+             if (data.status === 'Sukses') {
+                return `[${data.waktu}] - Absen berhasil: <strong>${data.nama}</strong> (${data.nisn})`;
+            } else {
+                return `[${data.waktu}] - Gagal: Barcode <strong>${data.nisn}</strong> tidak terdaftar!`;
+            }
+        }
+
         absenForm.addEventListener('submit', function(event) {
             event.preventDefault();
             const nisn = barcodeInput.value.trim();
-            const waktu = new Date().toLocaleTimeString('id-ID');
+            const now = new Date();
+            const tanggal = now.toLocaleDateString('id-ID', { year: 'numeric', month: '2-digit', day: '2-digit' });
+            const waktu = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
             
             if (nisn) {
-                // Cek apakah siswa terdaftar di file siswa.js
                 const siswaTerdaftar = DAFTAR_SISWA.find(siswa => siswa.nisn === nisn);
                 
+                let dataLog;
                 if (siswaTerdaftar) {
-                    const pesan = `[${waktu}] - Absen berhasil: <strong>${siswaTerdaftar.nama}</strong> (${nisn})`;
-                    tampilkanLogDiUI(pesan, 'sukses');
-                    simpanLog(pesan, 'sukses');
+                    dataLog = {
+                        tanggal: tanggal,
+                        waktu: waktu,
+                        status: 'Sukses',
+                        nama: siswaTerdaftar.nama,
+                        nisn: siswaTerdaftar.nisn,
+                        kelas: siswaTerdaftar.kelas || '-'
+                    };
                 } else {
-                    const pesan = `[${waktu}] - Gagal: Barcode <strong>${nisn}</strong> tidak terdaftar!`;
-                    tampilkanLogDiUI(pesan, 'gagal');
-                    simpanLog(pesan, 'gagal');
+                    dataLog = {
+                        tanggal: tanggal,
+                        waktu: waktu,
+                        status: 'Gagal',
+                        nama: 'Tidak Dikenal',
+                        nisn: nisn,
+                        kelas: '-'
+                    };
                 }
+                const pesan = formatPesan(dataLog);
+                tampilkanLogDiUI(pesan, dataLog.status.toLowerCase());
+                simpanLog(dataLog);
             }
             
-            barcodeInput.value = ''; // Kosongkan input
+            barcodeInput.value = '';
         });
 
-        // Fungsi untuk download log sebagai file CSV (bisa dibuka di Excel)
+        // --- PERUBAHAN 2: Fungsi download CSV yang sudah diperbaiki ---
         function downloadCSV() {
             if (logData.length === 0) {
                 alert("Belum ada data absensi untuk di-download.");
                 return;
             }
 
-            // Buang tag HTML dari pesan untuk CSV
-            const dataBersih = logData.map(item => {
-                const elemen = document.createElement("div");
-                elemen.innerHTML = item.pesan;
-                return elemen.textContent || elemen.innerText || "";
+            // Membuat header untuk kolom-kolom di Excel
+            const header = ["Tanggal", "Waktu", "Status", "Nama", "NISN", "Kelas"];
+            let csvContent = header.join(",") + "\n";
+
+            // Mengisi baris data
+            logData.forEach(item => {
+                const row = [item.tanggal, item.waktu, item.status, item.nama, item.nisn, item.kelas];
+                csvContent += row.join(",") + "\n";
             });
             
-            // Tambahkan header
-            let csvContent = "data:text/csv;charset=utf-8,Log Absensi\n";
-            csvContent += dataBersih.join("\n");
-
-            const encodedUri = encodeURI(csvContent);
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
             const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `log_absen_${new Date().toISOString().slice(0,10)}.csv`);
+            link.setAttribute("href", url);
+            const namaFile = `log_absen_${new Date().toISOString().slice(0,10)}.csv`;
+            link.setAttribute("download", namaFile);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
         }
 
-        // --- Event Listener ---
-        
-        // Pastikan input selalu fokus
         barcodeInput.addEventListener('blur', () => this.focus());
-        
-        // Muat data saat halaman pertama kali dibuka
         window.addEventListener('DOMContentLoaded', muatLogDariStorage);
     </script>
 </body>
