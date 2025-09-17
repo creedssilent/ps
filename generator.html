@@ -62,8 +62,8 @@
             </div>
             <button class="action-btn tambah-btn" onclick="tambahManual()">Tambah Siswa</button>
 
-            <h4 style="margin-top: 30px;">Impor Siswa Massal (Excel)</h4>
-            <p class="description" style="font-size: 0.9em;">Impor akan menimpa seluruh data yang ada dengan data dari file Excel.</p>
+            <h4 style="margin-top: 30px;">Impor & Perbarui dari Excel</h4>
+            <p class="description" style="font-size: 0.9em;">Menambah siswa baru & memperbarui data siswa lama jika ada perubahan nama/kelas.</p>
             <input type="file" id="excel-file" accept=".xlsx, .xls">
             <label for="excel-file" id="upload-label">Pilih File Master Siswa (.xlsx)</label>
         </div>
@@ -71,13 +71,13 @@
 
     <script src="siswa.js"></script>
     <script>
-        // --- Elemen-elemen Penting ---
+        // --- Elemen & Variabel Global ---
         const excelInput = document.getElementById('excel-file');
         const downloadPdfBtn = document.getElementById('download-pdf-btn');
         const statusArea = document.getElementById('status-area');
         let daftarSiswa = getDaftarSiswa();
 
-        // --- Cek Status Awal & Update UI ---
+        // --- Fungsi-fungsi Utama ---
         function updateStatus() {
             daftarSiswa = getDaftarSiswa();
             if (daftarSiswa.length > 0) {
@@ -91,81 +91,11 @@
             }
         }
         
-        // --- Logika Impor & Tambah Data ---
         function simpanDaftarSiswa() {
             localStorage.setItem('daftarSiswa', JSON.stringify(daftarSiswa));
             updateStatus(); // Perbarui status setelah menyimpan
         }
 
-        function tambahManual() {
-            const nisn = document.getElementById('new-nisn').value.trim();
-            const nama = document.getElementById('new-nama').value.trim();
-            const kelas = document.getElementById('new-kelas').value.trim();
-
-            if (!nisn || !nama) {
-                alert('NISN dan Nama tidak boleh kosong!');
-                return;
-            }
-
-            if (daftarSiswa.some(s => s.nisn === nisn)) {
-                alert('Siswa dengan NISN ini sudah ada!');
-                return;
-            }
-
-            daftarSiswa.push({ nisn, nama, kelas: kelas || '-' });
-            simpanDaftarSiswa();
-            alert(`Siswa "${nama}" berhasil ditambahkan.`);
-
-            // Kosongkan form
-            document.getElementById('new-nisn').value = '';
-            document.getElementById('new-nama').value = '';
-            document.getElementById('new-kelas').value = '';
-        }
-
-        excelInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            const reader = new FileReader();
-
-            reader.onload = function(event) {
-                let daftarSiswaBaru = [];
-                const data = new Uint8Array(event.target.result);
-                const workbook = XLSX.read(data, {
-                    type: 'array'
-                });
-                const firstSheetName = workbook.SheetNames[0];
-                const worksheet = workbook.Sheets[firstSheetName];
-                const json_data = XLSX.utils.sheet_to_json(worksheet, {
-                    header: 1
-                });
-
-                for (let i = 1; i < json_data.length; i++) {
-                    const row = json_data[i];
-                    // Mengambil data dari kolom yang benar: B=NISN, C=Nama, D=Kelas
-                    const nisn = String(row[1] || '').trim();
-                    const nama = String(row[2] || '').trim();
-                    const kelas = String(row[3] || '').trim();
-                    if (nisn && nama) {
-                        daftarSiswaBaru.push({
-                            nisn,
-                            nama,
-                            kelas: kelas || '-'
-                        });
-                    }
-                }
-
-                if (daftarSiswaBaru.length > 0) {
-                    daftarSiswa = daftarSiswaBaru;
-                    simpanDaftarSiswa();
-                    alert(`Berhasil mengimpor dan menimpa dengan ${daftarSiswaBaru.length} data siswa baru.`);
-                } else {
-                    alert('Gagal memuat data dari Excel. Cek format file.');
-                }
-            };
-            reader.readAsArrayBuffer(file);
-            e.target.value = '';
-        });
-
-        // --- Fungsi Download PDF ---
         async function generatePdfForAllStudents() {
             const students = getDaftarSiswa();
             if (students.length === 0) {
@@ -256,6 +186,77 @@
             doc.save(`semua_barcode_siswa.pdf`);
             updateStatus();
         }
+
+        function tambahManual() {
+            const nisn = document.getElementById('new-nisn').value.trim();
+            const nama = document.getElementById('new-nama').value.trim();
+            const kelas = document.getElementById('new-kelas').value.trim();
+
+            if (!nisn || !nama) {
+                alert('NISN dan Nama tidak boleh kosong!');
+                return;
+            }
+
+            if (daftarSiswa.some(s => s.nisn === nisn)) {
+                alert('Siswa dengan NISN ini sudah ada!');
+                return;
+            }
+
+            daftarSiswa.push({ nisn, nama, kelas: kelas || '-' });
+            simpanDaftarSiswa();
+            alert(`Siswa "${nama}" berhasil ditambahkan.`);
+
+            document.getElementById('new-nisn').value = '';
+            document.getElementById('new-nama').value = '';
+            document.getElementById('new-kelas').value = '';
+        }
+
+        excelInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(event) {
+                const data = new Uint8Array(event.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                const json_data = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+                let siswaBaru = 0;
+                let siswaDiperbarui = 0;
+
+                for (let i = 1; i < json_data.length; i++) {
+                    const row = json_data[i];
+                    const nisn = String(row[1] || '').trim();
+                    const nama = String(row[2] || '').trim();
+                    const kelas = String(row[3] || '').trim();
+
+                    if (nisn && nama) {
+                        const indexSiswa = daftarSiswa.findIndex(siswa => siswa.nisn === nisn);
+                        
+                        if (indexSiswa !== -1) {
+                            // JIKA DITEMUKAN: Perbarui (update) data nama dan kelas
+                            daftarSiswa[indexSiswa].nama = nama;
+                            daftarSiswa[indexSiswa].kelas = kelas || '-';
+                            siswaDiperbarui++;
+                        } else {
+                            // JIKA TIDAK DITEMUKAN: Tambahkan sebagai siswa baru
+                            daftarSiswa.push({ nisn, nama, kelas: kelas || '-' });
+                            siswaBaru++;
+                        }
+                    }
+                }
+
+                if (siswaBaru > 0 || siswaDiperbarui > 0) {
+                    simpanDaftarSiswa();
+                    alert(`Proses impor selesai.\n\n- ${siswaBaru} siswa baru ditambahkan.\n- ${siswaDiperbarui} data siswa diperbarui.`);
+                } else {
+                    alert('Tidak ada data baru yang ditambahkan atau diperbarui.');
+                }
+            };
+            reader.readAsArrayBuffer(file);
+            e.target.value = '';
+        });
         
         // --- Event Listener ---
         downloadPdfBtn.addEventListener('click', generatePdfForAllStudents);
