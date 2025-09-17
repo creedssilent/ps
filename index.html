@@ -3,149 +3,229 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Absensi (Offline Mode)</title>
+    <title>Sistem Absensi Modern</title>
     <style>
-        body { font-family: sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .container { background-color: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.1); text-align: center; width: 90%; max-width: 600px; }
-        h1 { margin-bottom: 20px; }
-        #barcode-input { width: 100%; padding: 15px; font-size: 1.2rem; border: 2px solid #ddd; border-radius: 8px; box-sizing: border-box; text-align: center; }
-        #barcode-input:focus { outline: none; border-color: #1877f2; }
-        #log-container { margin-top: 20px; text-align: left; max-height: 250px; overflow-y: auto; border: 1px solid #eee; padding: 15px; border-radius: 8px; }
-        #absen-log { list-style-type: none; padding: 0; margin: 0; }
-        #absen-log li { padding: 10px; border-bottom: 1px solid #f0f0f0; }
-        .sukses { color: #28a745; font-weight: bold; }
-        .gagal { color: #dc3545; font-weight: bold; }
-        .download-btn { background-color: #1877f2; color: white; padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; margin-top: 20px; }
-        .download-btn:hover { background-color: #166fe5; }
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+        :root {
+            --primary-blue: #007bff;
+            --success-green: #28a745;
+            --error-red: #dc3545;
+            --light-gray: #f8f9fa;
+            --dark-gray: #343a40;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        body { 
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            background: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%);
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0;
+            color: var(--dark-gray);
+        }
+
+        .container { 
+            background-color: #ffffff; 
+            padding: 40px 50px; 
+            border-radius: 20px; 
+            box-shadow: var(--shadow);
+            text-align: center; 
+            width: 90%; 
+            max-width: 500px; 
+            position: relative; 
+            overflow: hidden;
+            border: 1px solid #e9ecef;
+        }
+        
+        /* --- LOGO SEKOLAH --- */
+        .school-logo {
+            max-height: 80px; /* Atur tinggi maksimal logo */
+            margin-bottom: 25px;
+        }
+
+        h1 { 
+            margin-bottom: 10px; 
+            font-weight: 600;
+        }
+        
+        p.subtitle {
+            margin-bottom: 30px;
+            color: #6c757d;
+        }
+
+        #barcode-input { 
+            width: 100%; 
+            padding: 18px; 
+            font-size: 1.2rem; 
+            border: 2px solid #ced4da;
+            border-radius: 12px; 
+            box-sizing: border-box; 
+            text-align: center; 
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        #barcode-input:focus { 
+            outline: none; 
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.15);
+        }
+
+        /* --- JAM DIGITAL --- */
+        #clock {
+            font-size: 1.1em;
+            font-weight: 500;
+            color: #495057;
+            background-color: var(--light-gray);
+            padding: 8px 15px;
+            border-radius: 8px;
+            display: inline-block;
+            margin-top: 30px;
+            letter-spacing: 1.5px;
+        }
+
+        /* --- WADAH NOTIFIKASI MODERN (TOAST) --- */
+        #notification-tray {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .toast {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            border: 1px solid #ddd;
+            width: 350px;
+            background: #fff;
+            animation: slideIn 0.5s ease-out, fadeOut 0.5s ease-in 4.5s forwards;
+        }
+        .toast-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 15px;
+        }
+        .toast.success {
+            border-left: 5px solid var(--success-green);
+        }
+        .toast.error {
+            border-left: 5px solid var(--error-red);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; transform: translateX(100%); }
+        }
+        
+        /* Tombol download & link admin tetap sama */
+        .download-btn { background-color: var(--primary-blue); color: white; padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; margin-top: 20px; font-weight: 500; }
+        .download-btn:hover { background-color: #0069d9; }
+        .page-link { position: absolute; top: 15px; right: 20px; text-decoration: none; color: var(--primary-blue); font-weight: bold; font-size: 0.9em; cursor: pointer; }
+        .page-link:hover { text-decoration: underline; }
+
     </style>
 </head>
 <body>
     <div class="container">
+        <img src="logo.png" alt="Logo Sekolah" class="school-logo">
+
         <h1>Sistem Absensi Barcode</h1>
-        <p>Arahkan scan barcode ke kolom di bawah ini. Data tersimpan di browser.</p>
+        <p class="subtitle">Silakan scan barcode Anda pada kolom di bawah ini.</p>
         
-        <form id="absen-form">
+        <form id="absen-form" onsubmit="handleScan(event)">
             <input type="text" id="barcode-input" placeholder="Tunggu Scan..." autofocus>
         </form>
 
-        <div id="log-container">
-            <h3>Log Absensi:</h3>
-            <ul id="absen-log"></ul>
-        </div>
+        <div id="clock"></div>
 
-        <button class="download-btn" onclick="downloadCSV()">⬇️ Download Log Absen (CSV)</button>
+        <button class="download-btn" onclick="downloadCSV()">⬇️ Download Log Absen</button>
+        
+        <a onclick="promptAdminLogin()" class="page-link">⚙️ Admin Panel</a>
     </div>
 
+    <div id="notification-tray"></div>
+
     <script src="siswa.js"></script>
-
     <script>
-        const absenForm = document.getElementById('absen-form');
+        // --- LOGIKA UTAMA (FUNGSI BARU DAN LAMA) ---
         const barcodeInput = document.getElementById('barcode-input');
-        const absenLog = document.getElementById('absen-log');
+        const notificationTray = document.getElementById('notification-tray');
+        const clockElement = document.getElementById('clock');
         let logData = [];
+        const DAFTAR_SISWA = getDaftarSiswa();
 
-        // --- Fungsi Utama ---
+        // Fungsi untuk menampilkan notifikasi modern (Toast)
+        function showNotification(message, type) {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`; // type: 'success' atau 'error'
 
-        function muatLogDariStorage() {
-            const dataTersimpan = localStorage.getItem('logAbsen');
-            if (dataTersimpan) {
-                logData = JSON.parse(dataTersimpan);
-                logData.forEach(item => {
-                    const pesan = formatPesan(item);
-                    tampilkanLogDiUI(pesan, item.status.toLowerCase());
-                });
-            }
-        }
-        
-        function tampilkanLogDiUI(pesan, tipe) {
-            const logItem = document.createElement('li');
-            logItem.innerHTML = pesan;
-            logItem.className = tipe;
-            absenLog.prepend(logItem);
-        }
+            const icon_svg = type === 'success' 
+                ? `<svg class="toast-icon" style="color: var(--success-green);" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>`
+                : `<svg class="toast-icon" style="color: var(--error-red);" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>`;
 
-        // --- PERUBAHAN 1: Menyimpan data dalam format terstruktur ---
-        function simpanLog(data) {
-            logData.push(data);
-            localStorage.setItem('logAbsen', JSON.stringify(logData));
+            toast.innerHTML = `${icon_svg} <div>${message}</div>`;
+            notificationTray.appendChild(toast);
+
+            // Hapus notifikasi setelah 5 detik
+            setTimeout(() => {
+                toast.remove();
+            }, 5000);
         }
 
-        function formatPesan(data) {
-             if (data.status === 'Sukses') {
-                return `[${data.waktu}] - Absen berhasil: <strong>${data.nama}</strong> (${data.nisn})`;
-            } else {
-                return `[${data.waktu}] - Gagal: Barcode <strong>${data.nisn}</strong> tidak terdaftar!`;
-            }
-        }
-
-        absenForm.addEventListener('submit', function(event) {
+        // Fungsi utama yang menangani scan
+        function handleScan(event) {
             event.preventDefault();
             const nisn = barcodeInput.value.trim();
             const now = new Date();
             const tanggal = now.toLocaleDateString('id-ID', { year: 'numeric', month: '2-digit', day: '2-digit' });
             const waktu = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            
+
             if (nisn) {
                 const siswaTerdaftar = DAFTAR_SISWA.find(siswa => siswa.nisn === nisn);
                 
                 let dataLog;
                 if (siswaTerdaftar) {
-                    dataLog = {
-                        tanggal: tanggal,
-                        waktu: waktu,
-                        status: 'Sukses',
-                        nama: siswaTerdaftar.nama,
-                        nisn: siswaTerdaftar.nisn,
-                        kelas: siswaTerdaftar.kelas || '-'
-                    };
+                    dataLog = { tanggal, waktu, status: 'Sukses', nama: siswaTerdaftar.nama, nisn: siswaTerdaftar.nisn, kelas: siswaTerdaftar.kelas || '-' };
+                    showNotification(`<strong>${siswaTerdaftar.nama}</strong><br>Berhasil melakukan absensi.`, 'success');
                 } else {
-                    dataLog = {
-                        tanggal: tanggal,
-                        waktu: waktu,
-                        status: 'Gagal',
-                        nama: 'Tidak Dikenal',
-                        nisn: nisn,
-                        kelas: '-'
-                    };
+                    dataLog = { tanggal, waktu, status: 'Gagal', nama: 'Tidak Dikenal', nisn: nisn, kelas: '-' };
+                    showNotification(`<strong>Barcode ${nisn}</strong><br>Tidak terdaftar dalam sistem.`, 'error');
                 }
-                const pesan = formatPesan(dataLog);
-                tampilkanLogDiUI(pesan, dataLog.status.toLowerCase());
                 simpanLog(dataLog);
             }
-            
             barcodeInput.value = '';
-        });
-
-        // --- PERUBAHAN 2: Fungsi download CSV yang sudah diperbaiki ---
-        function downloadCSV() {
-            if (logData.length === 0) {
-                alert("Belum ada data absensi untuk di-download.");
-                return;
-            }
-
-            // Membuat header untuk kolom-kolom di Excel
-            const header = ["Tanggal", "Waktu", "Status", "Nama", "NISN", "Kelas"];
-            let csvContent = header.join(",") + "\n";
-
-            // Mengisi baris data
-            logData.forEach(item => {
-                const row = [item.tanggal, item.waktu, item.status, item.nama, item.nisn, item.kelas];
-                csvContent += row.join(",") + "\n";
-            });
-            
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.setAttribute("href", url);
-            const namaFile = `log_absen_${new Date().toISOString().slice(0,10)}.csv`;
-            link.setAttribute("download", namaFile);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
         }
 
-        barcodeInput.addEventListener('blur', () => this.focus());
-        window.addEventListener('DOMContentLoaded', muatLogDariStorage);
+        // Fungsi jam digital
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            clockElement.textContent = timeString;
+        }
+
+        // Fungsi lainnya tetap sama
+        function promptAdminLogin() { const userBenar = "admin"; const passBenar = "rahasia123"; const user = prompt("Masukkan Username Admin:"); if (user === null) return; const pass = prompt("Masukkan Password Admin:"); if (pass === null) return; if (user === userBenar && pass === passBenar) { window.location.href = "generator.html"; } else { alert("Username atau Password salah!"); } }
+        function simpanLog(data) { logData.push(data); localStorage.setItem('logAbsen', JSON.stringify(logData)); }
+        function muatLogDariStorage() { const dataTersimpan = localStorage.getItem('logAbsen'); if (dataTersimpan) { logData = JSON.parse(dataTersimpan); } }
+        function downloadCSV() { if (logData.length === 0) { alert("Belum ada data absensi untuk di-download."); return; } const header = ["Tanggal", "Waktu", "Status", "Nama", "NISN", "Kelas"]; let csvContent = header.join(",") + "\n"; logData.forEach(item => { const row = [item.tanggal, item.waktu, `"${item.status}"`, `"${item.nama}"`, `"${item.nisn}"`, `"${item.kelas}"`]; csvContent += row.join(",") + "\n"; }); const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' }); const url = URL.createObjectURL(blob); const link = document.createElement("a"); link.setAttribute("href", url); const namaFile = `log_absen_${new Date().toISOString().slice(0,10)}.csv`; link.setAttribute("download", namaFile); document.body.appendChild(link); link.click(); document.body.removeChild(link); }
+
+        // Inisialisasi saat halaman dimuat
+        barcodeInput.addEventListener('blur', () => barcodeInput.focus());
+        window.addEventListener('DOMContentLoaded', () => {
+            muatLogDariStorage();
+            updateClock();
+            setInterval(updateClock, 1000);
+        });
     </script>
 </body>
 </html>
