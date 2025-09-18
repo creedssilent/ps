@@ -19,7 +19,6 @@
 
         body { 
             font-family: 'Poppins', sans-serif;
-            /* === BACKGROUND BARU === */
             background-image: linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)), url('https://images.unsplash.com/photo-1523240795612-9a054b0db644?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80');
             background-size: cover;
             background-position: center;
@@ -32,8 +31,8 @@
         }
 
         .container { 
-            background-color: rgba(255, 255, 255, 0.95); /* Sedikit transparan */
-            backdrop-filter: blur(10px); /* Efek blur di belakang container */
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
             padding: 40px 50px; 
             border-radius: 20px; 
             box-shadow: var(--shadow-strong);
@@ -44,17 +43,15 @@
             border: 1px solid rgba(255, 255, 255, 0.5);
         }
         
-        /* === UKURAN LOGO DIPERBESAR === */
         .school-logo {
-            max-height: 150px; /* Dari 80px menjadi 100px */
+            max-height: 150px;
             margin-bottom: 20px;
         }
 
-        /* === TULISAN NAMA SEKOLAH === */
         .school-name {
             font-size: 1.5em;
             font-weight: 700;
-            color: #0056b3; /* Biru lebih gelap */
+            color: #0056b3;
             margin-bottom: 5px;
         }
         
@@ -146,23 +143,17 @@
 <body>
     <div class="container">
         <img src="logo.png" alt="Logo Sekolah" class="school-logo">
-
         <h2 class="school-name">SMK Negeri 2 Bengkalis</h2>
-        
         <h1 class="system-title">Sistem Absensi Barcode</h1>
         <p class="subtitle">Silakan scan barcode Anda pada kolom di bawah ini.</p>
         
         <form id="absen-form" onsubmit="handleScan(event)">
             <input type="text" id="barcode-input" placeholder="Tunggu Scan..." autofocus>
         </form>
-
         <div id="clock"></div>
-
         <button class="download-btn" onclick="downloadCSV()">⬇️ Download Log Absen</button>
-        
         <a onclick="promptAdminLogin()" class="page-link">⚙️ Admin Panel</a>
     </div>
-
     <div id="notification-tray"></div>
 
     <script src="siswa.js"></script>
@@ -171,27 +162,8 @@
         const notificationTray = document.getElementById('notification-tray');
         const clockElement = document.getElementById('clock');
         let logData = [];
-        const DAFTAR_SISWA = getDaftarSiswa();
+        let DAFTAR_SISWA = [];
 
-        // Fungsi untuk menampilkan notifikasi modern (Toast)
-        function showNotification(message, type) {
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`; // type: 'success' atau 'error'
-
-            const icon_svg = type === 'success' 
-                ? `<svg class="toast-icon" style="color: var(--success-green);" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>`
-                : `<svg class="toast-icon" style="color: var(--error-red);" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>`;
-
-            toast.innerHTML = `${icon_svg} <div>${message}</div>`;
-            notificationTray.appendChild(toast);
-
-            // Hapus notifikasi setelah 5 detik
-            setTimeout(() => {
-                toast.remove();
-            }, 5000);
-        }
-
-        // Fungsi utama yang menangani scan
         function handleScan(event) {
             event.preventDefault();
             const nisn = barcodeInput.value.trim();
@@ -204,10 +176,24 @@
                 
                 let dataLog;
                 if (siswaTerdaftar) {
-                    dataLog = { tanggal, waktu, status: 'Sukses', nama: siswaTerdaftar.nama, nisn: siswaTerdaftar.nisn, kelas: siswaTerdaftar.kelas || '-' };
+                    dataLog = {
+                        tanggal: tanggal,
+                        waktu: waktu,
+                        status: 'Sukses',
+                        nama: siswaTerdaftar.nama,
+                        nisn: siswaTerdaftar.nisn,
+                        kelas: siswaTerdaftar.kelas || '-'
+                    };
                     showNotification(`<strong>${siswaTerdaftar.nama}</strong><br>Berhasil melakukan absensi.`, 'success');
                 } else {
-                    dataLog = { tanggal, waktu, status: 'Gagal', nama: 'Tidak Dikenal', nisn: nisn, kelas: '-' };
+                    dataLog = {
+                        tanggal: tanggal,
+                        waktu: waktu,
+                        status: 'Gagal',
+                        nama: 'Tidak Dikenal',
+                        nisn: nisn,
+                        kelas: '-'
+                    };
                     showNotification(`<strong>Barcode ${nisn}</strong><br>Tidak terdaftar dalam sistem.`, 'error');
                 }
                 simpanLog(dataLog);
@@ -215,14 +201,55 @@
             barcodeInput.value = '';
         }
 
-        // Fungsi jam digital
+        function downloadCSV() {
+            if (logData.length === 0) {
+                alert("Belum ada data absensi untuk di-download.");
+                return;
+            }
+
+            const header = ["Tanggal", "Waktu", "Status", "Nama", "NISN", "Kelas"];
+            let csvContent = header.join(";") + "\n";
+
+            logData.forEach(item => {
+                const row = [
+                    item.tanggal,
+                    item.waktu,
+                    item.status,
+                    item.nama,
+                    item.nisn,
+                    item.kelas
+                ];
+                csvContent += row.join(";") + "\n";
+            });
+            
+            const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
+            const blob = new Blob([bom, csvContent], { type: 'text/csv;charset=utf-8;' });
+            
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            const namaFile = `log_absen_${new Date().toISOString().slice(0,10)}.csv`;
+            link.setAttribute("download", namaFile);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function showNotification(message, type) {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            const icon_svg = type === 'success' ? `<svg class="toast-icon" style="color: var(--success-green);" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>` : `<svg class="toast-icon" style="color: var(--error-red);" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>`;
+            toast.innerHTML = `${icon_svg} <div>${message}</div>`;
+            notificationTray.appendChild(toast);
+            setTimeout(() => { toast.remove(); }, 5000);
+        }
+        
         function updateClock() {
             const now = new Date();
             const timeString = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
             clockElement.textContent = timeString;
         }
 
-        // Fungsi login admin
         function promptAdminLogin() { 
             const userBenar = "admin"; 
             const passBenar = "rahasia123"; 
@@ -237,13 +264,11 @@
             } 
         }
 
-        // Fungsi simpan log
         function simpanLog(data) { 
             logData.push(data); 
             localStorage.setItem('logAbsen', JSON.stringify(logData)); 
         }
 
-        // Fungsi muat log dari storage
         function muatLogDariStorage() { 
             const dataTersimpan = localStorage.getItem('logAbsen'); 
             if (dataTersimpan) { 
@@ -251,32 +276,9 @@
             } 
         }
 
-        // Fungsi download CSV
-        function downloadCSV() { 
-            if (logData.length === 0) { 
-                alert("Belum ada data absensi untuk di-download."); 
-                return; 
-            } 
-            const header = ["Tanggal", "Waktu", "Status", "Nama", "NISN", "Kelas"]; 
-            let csvContent = header.join(",") + "\n"; 
-            logData.forEach(item => { 
-                const row = [item.tanggal, item.waktu, `"${item.status}"`, `"${item.nama}"`, `"${item.nisn}"`, `"${item.kelas}"`]; 
-                csvContent += row.join(",") + "\n"; 
-            }); 
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' }); 
-            const url = URL.createObjectURL(blob); 
-            const link = document.createElement("a"); 
-            link.setAttribute("href", url); 
-            const namaFile = `log_absen_${new Date().toISOString().slice(0,10)}.csv`; 
-            link.setAttribute("download", namaFile); 
-            document.body.appendChild(link); 
-            link.click(); 
-            document.body.removeChild(link); 
-        }
-
-        // Inisialisasi saat halaman dimuat
         barcodeInput.addEventListener('blur', () => barcodeInput.focus());
         window.addEventListener('DOMContentLoaded', () => {
+            DAFTAR_SISWA = getDaftarSiswa();
             muatLogDariStorage();
             updateClock();
             setInterval(updateClock, 1000);
