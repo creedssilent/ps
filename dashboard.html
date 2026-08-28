@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daftar Inventaris - IRGT School</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+    <a href="dashboard.html" class="nav-brand">
+        <div class="nav-logo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg></div>
+        <div class="nav-brand-text"><h2>IRGT INVENTORY</h2><span>IRGT School IT System</span></div>
+    </a>
+    <ul class="nav-links">
+        <li><a href="dashboard.html" class="active"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg> Daftar Inventaris</a></li>
+    </ul>
+    <div class="nav-right">
+        <div class="user-pill">
+            <div class="user-avatar" id="user-avatar">?</div>
+            <div>
+                <div class="user-name" id="user-name">—</div>
+                <div class="user-role" id="user-role">—</div>
+            </div>
+        </div>
+        <button class="btn-logout" id="btn-logout"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg> Keluar</button>
+    </div>
+</nav>
+
+<!-- MAIN -->
+<div class="container">
+    <div class="page-header">
+        <div class="page-title">
+            <h1>Daftar Inventaris</h1>
+            <p>Kelola dan pantau seluruh aset IT & perangkat sekolah IRGT secara real-time.</p>
+        </div>
+        <button class="btn-add" id="btn-open-add" style="display:none;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Tambah Inventaris
+        </button>
+    </div>
+
+    <div id="flash-success" class="alert-success" style="display:none;"><span id="flash-text"></span></div>
+
+    <!-- FILTER & SEARCH -->
+    <div class="filter-card">
+        <div class="filter-form">
+            <div class="filter-group">
+                <label>Pencarian</label>
+                <input type="text" id="f-search" class="filter-input" placeholder="Cari kode, nama, merk, pengguna...">
+            </div>
+            <div class="filter-group">
+                <label>Status</label>
+                <select id="f-status" class="filter-select">
+                    <option value="">Semua Status</option>
+                    <option value="ACTIVE">Aktif</option>
+                    <option value="MAINTENANCE">Perawatan</option>
+                    <option value="DAMAGED">Rusak</option>
+                    <option value="LOST">Hilang</option>
+                    <option value="RETIRED">Afkir</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Kondisi</label>
+                <select id="f-condition" class="filter-select">
+                    <option value="">Semua Kondisi</option>
+                    <option value="GOOD">Baik</option>
+                    <option value="FAIR">Cukup</option>
+                    <option value="POOR">Kurang Baik</option>
+                    <option value="DAMAGED">Rusak Total</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Penempatan</label>
+                <select id="f-placement" class="filter-select">
+                    <option value="">Semua Penempatan</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Lokasi</label>
+                <select id="f-location" class="filter-select">
+                    <option value="">Semua Lokasi</option>
+                </select>
+            </div>
+            <div class="filter-btn-group">
+                <button type="button" class="btn-reset" id="btn-reset-filter">Reset</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Kode Inventaris</th>
+                        <th>Nama Aset</th>
+                        <th>Penempatan</th>
+                        <th>Lokasi</th>
+                        <th>Jenis</th>
+                        <th>Merk</th>
+                        <th>Kondisi</th>
+                        <th>Status</th>
+                        <th style="text-align:center; min-width:130px;">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    <tr><td colspan="10"><div class="empty"><p>Memuat data...</p></div></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ADD/EDIT MODAL -->
+<div id="item-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-card" style="max-width:520px; text-align:left;">
+        <div class="modal-header">
+            <h3 id="item-modal-title">Tambah Inventaris</h3>
+            <button class="modal-close" onclick="closeItemModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+        </div>
+        <form id="item-form">
+            <input type="hidden" id="item-id">
+            <div class="form-grid">
+                <div class="form-group"><label>Kode Inventaris</label><input type="text" id="i-code" class="filter-input" required placeholder="INV-2026-001"></div>
+                <div class="form-group"><label>Nama Aset</label><input type="text" id="i-name" class="filter-input" required placeholder="KEYBOARD"></div>
+                <div class="form-group"><label>Penempatan</label><input type="text" id="i-placement" class="filter-input" required placeholder="Milik IT"></div>
+                <div class="form-group"><label>Lokasi</label><input type="text" id="i-location" class="filter-input" required placeholder="Lantai 1"></div>
+                <div class="form-group"><label>Jenis</label><input type="text" id="i-category" class="filter-input" required placeholder="Networking"></div>
+                <div class="form-group"><label>Merk</label><input type="text" id="i-brand" class="filter-input" placeholder="ASUS"></div>
+                <div class="form-group">
+                    <label>Kondisi</label>
+                    <select id="i-condition" class="filter-select" required>
+                        <option value="GOOD">Baik</option><option value="FAIR">Cukup</option><option value="POOR">Kurang Baik</option><option value="DAMAGED">Rusak Total</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="i-status" class="filter-select" required>
+                        <option value="ACTIVE">Aktif</option><option value="MAINTENANCE">Perawatan</option><option value="DAMAGED">Rusak</option><option value="LOST">Hilang</option><option value="RETIRED">Afkir</option>
+                    </select>
+                </div>
+                <div class="form-group" style="grid-column:1/-1;"><label>Pengguna (opsional)</label><input type="text" id="i-user" class="filter-input" placeholder="Nama pengguna aset"></div>
+            </div>
+            <div class="modal-actions" style="margin-top:8px;">
+                <button type="submit" class="btn-print" id="btn-save-item" style="flex:1; border:none; cursor:pointer;">Simpan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- QR MODAL -->
+<div id="qr-modal" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeQrModal()">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h3>QR Code Aset</h3>
+            <button class="modal-close" onclick="closeQrModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+        </div>
+        <div class="modal-qr-wrap">
+            <img id="qr-img" src="" alt="QR Code" width="220" height="220" style="border-radius:8px;">
+        </div>
+        <div id="qr-code-text" class="modal-code">—</div>
+        <div id="qr-name-text" class="modal-name">—</div>
+        <div class="modal-actions">
+            <button type="button" class="btn-download-png" onclick="downloadQrPng()" style="width:100%;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                Download PNG
+            </button>
+        </div>
+        <button class="btn-close-modal" onclick="closeQrModal()">Tutup</button>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/dashboard.js"></script>
+</body>
+</html>

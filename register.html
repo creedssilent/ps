@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daftar Akun Baru — IRGT Inventory System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="auth-body">
+
+<div class="auth-card" style="max-width:460px;">
+    <div class="card-header">
+        <div class="logo-box">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+        </div>
+        <div class="badge-brand">IRGT INVENTORY SYSTEM</div>
+        <h1>Daftar Akun Baru</h1>
+        <p class="subtitle">Buat akun untuk masuk ke sistem inventaris IRGT School</p>
+    </div>
+
+    <div class="notice-box">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+        <div class="notice-text">Akun baru otomatis berstatus <strong>User (Read-Only)</strong>. Hubungi Super Admin jika membutuhkan akses pengelolaan aset.</div>
+    </div>
+
+    <div id="alert-box" class="alert-error" style="display:none;"><ul><li id="alert-text"></li></ul></div>
+
+    <form id="register-form">
+        <div class="form-group">
+            <label for="name">Nama Lengkap</label>
+            <div class="input-wrap">
+                <span class="input-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span>
+                <input type="text" id="name" placeholder="Nama lengkap Anda" autocomplete="name" required autofocus>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="email">Alamat Email</label>
+            <div class="input-wrap">
+                <span class="input-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg></span>
+                <input type="email" id="email" placeholder="nama@irgtschool.id" autocomplete="email" required>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <div class="input-wrap">
+                <span class="input-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></span>
+                <input type="password" id="password" placeholder="Minimal 8 karakter" autocomplete="new-password" required minlength="8">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="password_confirmation">Konfirmasi Password</label>
+            <div class="input-wrap">
+                <span class="input-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></span>
+                <input type="password" id="password_confirmation" placeholder="Ulangi password di atas" autocomplete="new-password" required>
+            </div>
+        </div>
+
+        <button type="submit" class="btn-submit" id="btn-register">Daftar Sekarang</button>
+
+        <div class="card-footer">Sudah memiliki akun? <a href="index.html">Masuk di sini</a></div>
+    </form>
+</div>
+
+<div class="site-footer">&copy; 2026 IRGT School. All rights reserved.</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script>
+function showAlert(msg) {
+    document.getElementById('alert-text').textContent = msg;
+    document.getElementById('alert-box').style.display = 'block';
+}
+
+document.getElementById('register-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const confirmation = document.getElementById('password_confirmation').value;
+    const btn = document.getElementById('btn-register');
+
+    if (password !== confirmation) {
+        showAlert('Konfirmasi password tidak cocok.');
+        return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Memproses...';
+    try {
+        const cred = await auth.createUserWithEmailAndPassword(email, password);
+        await cred.user.updateProfile({ displayName: name });
+        // Simpan profil & role default 'user' (read-only) di Firestore
+        await db.collection('users').doc(cred.user.uid).set({
+            name: name,
+            email: email,
+            role: 'user',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        window.location.href = 'dashboard.html';
+    } catch (err) {
+        const map = {
+            'auth/email-already-in-use': 'Email sudah terdaftar.',
+            'auth/invalid-email': 'Format email tidak valid.',
+            'auth/weak-password': 'Password terlalu lemah (minimal 6-8 karakter).'
+        };
+        showAlert(map[err.code] || 'Gagal mendaftar: ' + err.message);
+        btn.disabled = false;
+        btn.textContent = 'Daftar Sekarang';
+    }
+});
+</script>
+</body>
+</html>
